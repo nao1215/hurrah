@@ -1,0 +1,7 @@
+[[routes]]
+path = "/service1"
+backend = "http://localhost:8081"
+
+[[routes]]
+path = "/service2"
+backend = "http://localhost:8082"
