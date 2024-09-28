@@ -1,9 +1,12 @@
+// Package main is the hurrah command entry point.
+// The hurrah command is API Gateway for microservices.
 package main
 
 import (
-	"flag"
-	"fmt"
+	"log/slog"
 	"os"
+
+	"github.com/nao1215/hurrah/config"
 )
 
 const (
@@ -20,35 +23,40 @@ func main() {
 
 // run runs the main logic of the program.
 func run() int {
-	flag := newFlag()
-	fmt.Printf("Port: %d\n", flag.Port)
-	fmt.Printf("ConfigFile: %s\n", flag.ConfigFile)
-	fmt.Printf("Debug: %t\n", flag.Debug)
+	hurrah, err := newHurrah()
+	if err != nil {
+		slog.Error("failed to initialize hurrah command", slog.String("error", err.Error()))
+		return ExitCodeError
+	}
 
+	hurrah.logStartupInfo()
 	return ExitCodeOK
 }
 
-// Flag represents a flag at command startup.
-type Flag struct {
-	Port       int    // Port is the port number to listen on.
-	ConfigFile string // ConfigFile is the path to the configuration file.
-	Debug      bool   // Debug is whether to run in debug mode.
+// hurrah is the main struct of the hurrah command.
+type hurrah struct {
+	flag config.Flag // flag is the flag at command startup.
 }
 
-// newFlag creates a new Flag.
-// It reads the command line flags and returns a new Flag.
-func newFlag() *Flag {
-	fs := flag.NewFlagSet("", flag.ExitOnError)
+// newHurrah reads the command line flags and returns a new hurrah.
+func newHurrah() (*hurrah, error) { //nolint:unparam
+	flag := config.NewFlag()
+	// TODO: Implement the configuration file reading process.
+	// Use can change log output destination.
+	slog.SetDefault(config.NewStructuredLogger(os.Stderr, flag.Debug))
+	return &hurrah{
+		flag: flag,
+	}, nil
+}
 
-	port := fs.Int("port", 8080, "a port number to listen on")
-	configFile := fs.String("config", "config.yaml", "a path to the configuration file")
-	debugMode := fs.Bool("debug", false, "whether to run in debug mode")
-
-	_ = fs.Parse(os.Args[1:]) // If an error occurs, it will be handled by flag.ExitOnError.
-
-	return &Flag{
-		Port:       *port,
-		ConfigFile: *configFile,
-		Debug:      *debugMode,
-	}
+// logStartupInfo logs the startup information of the hurrah command.
+// It's only printed in debug mode.
+func (h *hurrah) logStartupInfo() {
+	slog.Debug(
+		"running condition",
+		slog.String("version", config.GetVersion()),
+		slog.Int("port", h.flag.Port),
+		slog.String("config_file", h.flag.ConfigFile),
+		slog.Bool("debug", h.flag.Debug),
+	)
 }
