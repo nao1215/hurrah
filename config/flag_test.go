@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"os"
@@ -15,8 +15,8 @@ func TestNewFlag(t *testing.T) {
 		defer func() { os.Args = orgArgs }()
 		os.Args = args
 
-		got := newFlag()
-		want := &Flag{Port: 8080, ConfigFile: "config.yaml", Debug: false}
+		got := NewFlag()
+		want := Flag{Port: 8080, ConfigFile: "config.yaml", Debug: false}
 
 		if diff := cmp.Diff(got, want); diff != "" {
 			t.Errorf("NewFlag() mismatch (-got +want):\n%s", diff)
@@ -30,8 +30,8 @@ func TestNewFlag(t *testing.T) {
 		defer func() { os.Args = orgArgs }()
 		os.Args = args
 
-		got := newFlag()
-		want := &Flag{Port: 1234, ConfigFile: "new.yaml", Debug: true}
+		got := NewFlag()
+		want := Flag{Port: 1234, ConfigFile: "new.yaml", Debug: true}
 
 		if diff := cmp.Diff(got, want); diff != "" {
 			t.Errorf("NewFlag() mismatch (-got +want):\n%s", diff)

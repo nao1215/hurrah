@@ -1,8 +1,9 @@
 // Package config provides configuration for the hurrah command.
+// This package defines functions whose behavior changes outside of the command.
+// e.g., environment variables, flags, configuration files.
 package config
 
 import (
-	"fmt"
 	"runtime/debug"
 )
 
@@ -21,5 +22,5 @@ func GetVersion() string {
 	} else if buildInfo, ok := debug.ReadBuildInfo(); ok {
 		version = buildInfo.Main.Version
 	}
-	return fmt.Sprintf("%s version %s", Name, version)
+	return version
 }

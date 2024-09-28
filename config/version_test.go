@@ -8,7 +8,7 @@ import (
 func TestGetVersion(t *testing.T) {
 	t.Run("Get version from ldflags", func(t *testing.T) {
 		Version = "1.2.3"
-		expected := "hurrah version 1.2.3"
+		expected := "1.2.3"
 		result := GetVersion()
 
 		if result != expected {
@@ -23,7 +23,7 @@ func TestGetVersion(t *testing.T) {
 			t.Fatalf("Failed to read build info")
 		}
 
-		expected := "hurrah version " + buildInfo.Main.Version
+		expected := buildInfo.Main.Version
 		result := GetVersion()
 		if result != expected {
 			t.Errorf("Expected %s, but got %s", expected, result)
