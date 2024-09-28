@@ -1,0 +1,49 @@
+project_name: hurrah
+version: 2
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+builds:
+  - main: cmd/hurrah/main.go
+    ldflags:
+      - -s -w -X github.com/nao1215/hurrah/config.Version=v{{ .Version }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  name_template: "checksums.txt"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+nfpms:
+  - maintainer: 'Naohiro CHIKAMATSU <n.chika156@gmail.com>'
+    description: hurrah - API Gateway
+    homepage: https://github.com/nao1215/hurrah
+    license: Apache License 2.0
+    formats:
+      - deb
+      - rpm
+      - apk
+brews:
+  - name: hurrah
+    description: hurrah - API Gateway
+    license: Apache License 2.0
+    repository:
+      owner: nao1215
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+
