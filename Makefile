@@ -25,7 +25,7 @@ run: ## Run game
 	env GO111MODULE=on GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO_RUN) $(GO_LDFLAGS) cmd/hurrah/main.go
 
 clean: ## Clean project
-	-rm -rf $(APP) cover.out cover.html
+	-rm -rf $(APP) cover.out cover.html dist
 
 test: ## Start test
 	env GOOS=$(GOOS) $(GO_TEST) -cover $(GO_PKGROOT) -coverprofile=cover.out
