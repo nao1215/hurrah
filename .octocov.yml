@@ -3,6 +3,8 @@ coverage:
   acceptable: 0%
   badge:
     path: docs/coverage.svg
+  exclude:
+    - 'github.com/nao1215/hurrah/cmd/**/main.go'
 diff:
   datastores:
     - artifact://${GITHUB_REPOSITORY}
