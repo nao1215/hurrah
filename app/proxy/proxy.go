@@ -16,13 +16,9 @@ func SetProxy(mux *http.ServeMux, routes []config.Route) error {
 	for _, route := range routes {
 		proxy, err := newReverseProxy(route.Backend)
 		if err != nil {
-			return fmt.Errorf("proxy: failed to create a reverse proxy: %w", err)
+			return fmt.Errorf("proxy: failed to create a reverse proxy for route %s: %w", route.Path, err)
 		}
-		mux.HandleFunc(route.Path, func(p *httputil.ReverseProxy) http.HandlerFunc {
-			return func(w http.ResponseWriter, r *http.Request) {
-				p.ServeHTTP(w, r)
-			}
-		}(proxy))
+		mux.Handle(route.Path, proxy)
 		slog.Debug("proxy: set a reverse proxy", slog.String("path", route.Path), slog.String("backend", route.Backend))
 	}
 	return nil

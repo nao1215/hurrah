@@ -82,6 +82,9 @@ func (h *hurrah) run() error {
 
 // port returns the port number to listen on.
 func (h *hurrah) port() string {
+	if h.flag.Port == "" {
+		return ":8080"
+	}
 	if !strings.HasPrefix(h.flag.Port, ":") {
 		return ":" + h.flag.Port
 	}
@@ -91,10 +94,14 @@ func (h *hurrah) port() string {
 // logStartupInfo logs the startup information of the hurrah command.
 // It's only printed in debug mode.
 func (h *hurrah) logStartupInfo() {
-	routing := ""
+	var builder strings.Builder
 	for _, route := range h.config.Routes {
-		routing += route.Path + " -> " + route.Backend + " "
+		builder.WriteString(route.Path)
+		builder.WriteString(" -> ")
+		builder.WriteString(route.Backend)
+		builder.WriteString(" ")
 	}
+	routing := builder.String()
 
 	slog.Debug(
 		"running condition",
