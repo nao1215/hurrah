@@ -2,6 +2,7 @@
 package proxy
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -13,18 +14,21 @@ import (
 )
 
 func TestSetProxy(t *testing.T) {
-
 	t.Run("SetProxy with valid routes", func(t *testing.T) {
 		// Create two test backend server
 		backendServer1 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("backend 1"))
+			if _, err := w.Write([]byte("backend 1")); err != nil {
+				t.Errorf("w.Write() error = %v", err)
+			}
 		}))
 		defer backendServer1.Close()
 
 		backendServer2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("backend 2"))
+			if _, err := w.Write([]byte("backend 2")); err != nil {
+				t.Errorf("w.Write() error = %v", err)
+			}
 		}))
 		defer backendServer2.Close()
 
@@ -50,12 +54,18 @@ func TestSetProxy(t *testing.T) {
 		testServer := httptest.NewServer(mux)
 		defer testServer.Close()
 
+		ctx := context.Background()
 		// request to /service1 and check the response
-		resp1, err := http.Get(testServer.URL + "/service1")
+		req1, err := http.NewRequestWithContext(ctx, "GET", testServer.URL+"/service1", nil)
+		if err != nil {
+			t.Errorf("http.NewRequestWithContext() error = %v", err)
+		}
+
+		resp1, err := http.DefaultClient.Do(req1)
 		if err != nil {
 			t.Errorf("http.Get() error = %v", err)
 		}
-		defer resp1.Body.Close()
+		defer resp1.Body.Close() //nolint:errcheck
 
 		body1 := make([]byte, 128)
 		n1, err := resp1.Body.Read(body1)
@@ -72,11 +82,16 @@ func TestSetProxy(t *testing.T) {
 		}
 
 		// request to /service2 and check the response
-		resp2, err := http.Get(testServer.URL + "/service2")
+		req2, err := http.NewRequestWithContext(ctx, "GET", testServer.URL+"/service2", nil)
 		if err != nil {
 			t.Errorf("http.Get() error = %v", err)
 		}
-		defer resp2.Body.Close()
+
+		resp2, err := http.DefaultClient.Do(req2)
+		if err != nil {
+			t.Errorf("http.Get() error = %v", err)
+		}
+		defer resp2.Body.Close() //nolint:errcheck
 
 		body2 := make([]byte, 128)
 		n2, err := resp2.Body.Read(body2)

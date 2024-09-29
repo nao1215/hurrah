@@ -16,7 +16,7 @@ func SetProxy(mux *http.ServeMux, routes []config.Route) error {
 	for _, route := range routes {
 		proxy, err := newReverseProxy(route.Backend)
 		if err != nil {
-			return fmt.Errorf("proxy: failed to create a reverse proxy: %v", err)
+			return fmt.Errorf("proxy: failed to create a reverse proxy: %w", err)
 		}
 		mux.HandleFunc(route.Path, func(p *httputil.ReverseProxy) http.HandlerFunc {
 			return func(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func SetProxy(mux *http.ServeMux, routes []config.Route) error {
 func newReverseProxy(target string) (*httputil.ReverseProxy, error) {
 	url, err := url.Parse(target)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse target URL: %v", err)
+		return nil, fmt.Errorf("failed to parse target URL: %w", err)
 	}
 	return httputil.NewSingleHostReverseProxy(url), nil
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/nao1215/hurrah/app/proxy"
 	"github.com/nao1215/hurrah/config"
@@ -46,7 +47,7 @@ type hurrah struct {
 }
 
 // newHurrah reads the command line flags and returns a new hurrah.
-func newHurrah() (*hurrah, error) { //nolint:unparam
+func newHurrah() (*hurrah, error) {
 	flag := config.NewFlag()
 	slog.SetDefault(config.NewStructuredLogger(os.Stderr, flag.Debug))
 
@@ -70,7 +71,13 @@ func newHurrah() (*hurrah, error) { //nolint:unparam
 // run runs the main logic of the hurrah command.
 func (h *hurrah) run() error {
 	h.logStartupInfo()
-	return http.ListenAndServe(h.port(), h.mux)
+
+	server := &http.Server{
+		Addr:              h.port(),
+		Handler:           h.mux,
+		ReadHeaderTimeout: 10 * time.Second, // TODO: Use can be configured.
+	}
+	return server.ListenAndServe()
 }
 
 // port returns the port number to listen on.
