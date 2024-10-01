@@ -9,7 +9,7 @@ import (
 type Flag struct {
 	Port       string // Port is the port number to listen on.
 	ConfigFile string // ConfigFile is the path to the configuration file.
-	Debug      bool   // Debug is whether to run in debug mode.
+	Debug      bool   // Debug is whether to run in debug mode. By default, only output info/warning/error logs.
 }
 
 // NewFlag creates a new Flag.
@@ -19,7 +19,7 @@ func NewFlag() *Flag {
 
 	port := fs.String("port", "8080", "a port number to listen on")
 	configFile := fs.String("config", "config.toml", "a path to the configuration file")
-	debugMode := fs.Bool("debug", false, "whether to run in debug mode. By default, only output warning/error logs")
+	debugMode := fs.Bool("debug", false, "whether to run in debug mode. By default, only output info/warning/error logs")
 
 	_ = fs.Parse(os.Args[1:]) // If an error occurs, it will be handled by flag.ExitOnError.
 

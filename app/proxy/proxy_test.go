@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/nao1215/hurrah/config"
@@ -37,10 +38,12 @@ func TestSetProxy(t *testing.T) {
 			{
 				Path:    "/service1",
 				Backend: backendServer1.URL,
+				Timeout: 30,
 			},
 			{
 				Path:    "/service2",
 				Backend: backendServer2.URL,
+				Timeout: 30,
 			},
 		}
 
@@ -125,6 +128,51 @@ func TestSetProxy(t *testing.T) {
 		mux := http.NewServeMux()
 		if err := SetProxy(mux, nil); err != nil {
 			t.Errorf("SetProxy() error = %v", err)
+		}
+	})
+
+	t.Run("Request timeout", func(t *testing.T) {
+		backendServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			time.Sleep(2 * time.Second)
+			w.WriteHeader(http.StatusOK)
+			if _, err := w.Write([]byte("backend")); err != nil {
+				t.Errorf("w.Write() error = %v", err)
+			}
+		}))
+		defer backendServer.Close()
+
+		routes := []config.Route{
+			{
+				Path:    "/service1",
+				Backend: backendServer.URL,
+				Timeout: 1,
+			},
+		}
+
+		mux := http.NewServeMux()
+		err := SetProxy(mux, routes)
+		if err != nil {
+			t.Errorf("SetProxy() error = %v", err)
+		}
+
+		// run proxy server
+		testServer := httptest.NewServer(mux)
+		defer testServer.Close()
+
+		ctx := context.Background()
+		req, err := http.NewRequestWithContext(ctx, "GET", testServer.URL+"/service1", nil)
+		if err != nil {
+			t.Errorf("http.NewRequestWithContext() error = %v", err)
+		}
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Errorf("http.Get() error = %v", err)
+		}
+		defer resp.Body.Close() //nolint:errcheck
+
+		if diff := cmp.Diff(http.StatusBadGateway, resp.StatusCode); diff != "" {
+			t.Errorf("resp.StatusCode mismatch (-got +want):\n%s", diff)
 		}
 	})
 }

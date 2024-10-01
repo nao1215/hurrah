@@ -1,0 +1,5 @@
+[server]
+
+[[routes]]
+path = "/service1"
+backend = "http://localhost:8081"

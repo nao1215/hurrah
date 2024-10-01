@@ -1,7 +1,7 @@
-![Coverage](https://raw.githubusercontent.com/nao1215/octocovs-central-repo/main/badges/nao1215/hurrah/coverage.svg)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+![Coverage](https://raw.githubusercontent.com/nao1215/octocovs-central-repo/main/badges/nao1215/hurrah/coverage.svg)
 [![MultiPlatformUnitTest](https://github.com/nao1215/hurrah/actions/workflows/unit_test.yml/badge.svg)](https://github.com/nao1215/hurrah/actions/workflows/unit_test.yml)
 [![reviewdog](https://github.com/nao1215/hurrah/actions/workflows/reviewdog.yml/badge.svg)](https://github.com/nao1215/hurrah/actions/workflows/reviewdog.yml)
 
@@ -54,6 +54,10 @@ Usage:
 The hurrah command reads the configuration from the `config.toml` file. You can specify the configuration file with the `-config` flag.
 
 ```toml
+[server]
+port = "8080"
+debug = false
+
 [[routes]]
 path = "/service1"
 backend = "http://localhost:8081"
@@ -66,10 +70,13 @@ backend = "http://localhost:8082"
 
 | Key | Description |
 | --- | ----------- |
-| path | The path to match the incoming request. |
-| backend | The URL to forward the request to. |
-| timeout | The timeout for the request. By default, it is 30 seconds. |
-
+| server | The server configuration. |
+| server.port | The port number to listen on. |
+| server.debug | Whether to run in debug mode. By default, only output info/warning/error logs. |
+| routes  | An array of route configurations. |
+| routes.path | The path to match the incoming request. |
+| routes.backend | The URL to forward the request to. |
+| routes.timeout | The timeout for the request. By default, it is 30 seconds. |
 
 ## Roadmap
 
