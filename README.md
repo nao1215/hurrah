@@ -1,4 +1,7 @@
 ![Coverage](https://raw.githubusercontent.com/nao1215/octocovs-central-repo/main/badges/nao1215/hurrah/coverage.svg)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 [![MultiPlatformUnitTest](https://github.com/nao1215/hurrah/actions/workflows/unit_test.yml/badge.svg)](https://github.com/nao1215/hurrah/actions/workflows/unit_test.yml)
 [![reviewdog](https://github.com/nao1215/hurrah/actions/workflows/reviewdog.yml/badge.svg)](https://github.com/nao1215/hurrah/actions/workflows/reviewdog.yml)
 
@@ -33,6 +36,40 @@ go install github.com/nao1215/hurrah/cmd/hurrah@latest
 ```shell
 brew install nao1215/tap/hurrah
 ```
+
+## How to use
+### flag
+```shell
+ ./hurrah -h
+Usage:
+  -config string
+        a path to the configuration file (default "config.toml")
+  -debug
+        whether to run in debug mode. By default, only output warning/error logs
+  -port string
+        a port number to listen on (default "8080")
+```
+
+### config.toml
+The hurrah command reads the configuration from the `config.toml` file. You can specify the configuration file with the `-config` flag.
+
+```toml
+[[routes]]
+path = "/service1"
+backend = "http://localhost:8081"
+timeout = 10
+
+[[routes]]
+path = "/service2"
+backend = "http://localhost:8082"
+```
+
+| Key | Description |
+| --- | ----------- |
+| path | The path to match the incoming request. |
+| backend | The URL to forward the request to. |
+| timeout | The timeout for the request. By default, it is 30 seconds. |
+
 
 ## Roadmap
 
@@ -125,3 +162,25 @@ If you would like to send comments such as "find a bug" or "request for addition
 
 ## LICENSE
 [Apache License Version 2.0](./LICENSE).
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://debimate.jp/"><img src="https://avatars.githubusercontent.com/u/22737008?v=4?s=70" width="70px;" alt="CHIKAMATSU Naohiro"/><br /><sub><b>CHIKAMATSU Naohiro</b></sub></a><br /><a href="https://github.com/nao1215/hurrah/commits?author=nao1215" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
