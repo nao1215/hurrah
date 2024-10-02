@@ -6,6 +6,7 @@ debug = true
 path = "/service1"
 backend = "http://localhost:8081"
 timeout = 10
+health_check_path = "/health"
 
 [[routes]]
 path = "/service2"

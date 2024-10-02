@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/BurntSushi/toml"
 )
@@ -15,9 +16,31 @@ const (
 
 // Route is a struct that represents a route.
 type Route struct {
-	Path    string `toml:"path"`    // Path is the path of the route. e.g., /api/v1/users
-	Backend string `toml:"backend"` // Backend is the backend URL of the route. e.g., http://localhost:8080
-	Timeout int64  `toml:"timeout"` // Timeout is the timeout of the route. e.g., 10
+	Path            string `toml:"path"`              // Path is the path of the route. e.g., /api/v1/users
+	Backend         string `toml:"backend"`           // Backend is the backend URL of the route. e.g., http://localhost:8080
+	Timeout         int64  `toml:"timeout"`           // Timeout is the timeout of the route. e.g., 10
+	HealthCheckPath string `toml:"health_check_path"` // HealthCheckPath is the path of the health check. e.g., /health
+}
+
+// HealthCheckEnabled returns true if the health check is enabled.
+func (r Route) HealthCheckEnabled() bool {
+	return r.HealthCheckPath != ""
+}
+
+// HealthCheckURL returns the URL of the health check.
+func (r Route) HealthCheckURL() (string, error) {
+	if !r.HealthCheckEnabled() {
+		return "", fmt.Errorf("config: health check is not enabled")
+	}
+	backendURL, err := url.Parse(r.Backend)
+	if err != nil {
+		return "", fmt.Errorf("config: failed to parse backend URL for health check: %w", err)
+	}
+	healthCheckURL, err := backendURL.Parse(r.HealthCheckPath)
+	if err != nil {
+		return "", fmt.Errorf("config: failed to parse health check path: %w", err)
+	}
+	return healthCheckURL.String(), nil
 }
 
 // Server is a struct that represents a server.

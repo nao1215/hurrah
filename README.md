@@ -62,6 +62,7 @@ debug = false
 path = "/service1"
 backend = "http://localhost:8081"
 timeout = 10
+health_check_path = "/ping"
 
 [[routes]]
 path = "/service2"
@@ -77,6 +78,7 @@ backend = "http://localhost:8082"
 | routes.path | The path to match the incoming request. |
 | routes.backend | The URL to forward the request to. |
 | routes.timeout | The timeout for the request. By default, it is 30 seconds. |
+| routes.health_check_path | The path to check the health of the backend service. |
 
 ## Roadmap
 
