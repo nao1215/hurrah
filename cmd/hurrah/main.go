@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -49,12 +50,11 @@ type hurrah struct {
 // newHurrah reads the command line flags and returns a new hurrah.
 func newHurrah() (*hurrah, error) {
 	flag := config.NewFlag()
-	slog.SetDefault(config.NewStructuredLogger(os.Stderr, flag.Debug))
-
 	cfg, err := config.NewConfig(flag.ConfigFile)
 	if err != nil {
 		return nil, err
 	}
+	slog.SetDefault(config.NewStructuredLogger(os.Stderr, flag.Debug || cfg.Server.Debug))
 
 	mux := http.NewServeMux()
 	if err := proxy.SetProxy(mux, cfg.Routes); err != nil {
@@ -75,15 +75,23 @@ func (h *hurrah) run() error {
 	server := &http.Server{
 		Addr:              h.port(),
 		Handler:           h.mux,
-		ReadHeaderTimeout: 10 * time.Second, // TODO: Use can be configured.
+		ReadHeaderTimeout: time.Duration(10) * time.Second, // TODO: Use can be configured.
 	}
+	slog.Info("starting the server", slog.String("address", server.Addr))
 	return server.ListenAndServe()
 }
 
 // port returns the port number to listen on.
 func (h *hurrah) port() string {
+	if h.config.Server.Port != "" {
+		if !strings.HasPrefix(h.config.Server.Port, ":") {
+			return ":" + h.config.Server.Port
+		}
+		return h.config.Server.Port
+	}
+
 	if h.flag.Port == "" {
-		return ":8080"
+		return config.DefaultPort
 	}
 	if !strings.HasPrefix(h.flag.Port, ":") {
 		return ":" + h.flag.Port
@@ -99,6 +107,7 @@ func (h *hurrah) logStartupInfo() {
 		builder.WriteString(route.Path)
 		builder.WriteString(" -> ")
 		builder.WriteString(route.Backend)
+		builder.WriteString(fmt.Sprintf(" (timeout: %d[s])", route.Timeout))
 		builder.WriteString(" ")
 	}
 	routing := builder.String()
