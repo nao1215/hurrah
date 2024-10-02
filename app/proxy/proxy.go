@@ -20,6 +20,13 @@ func SetProxy(mux *http.ServeMux, routes []config.Route) error {
 		if err != nil {
 			return fmt.Errorf("proxy: failed to create a reverse proxy for route %s: %w", route.Path, err)
 		}
+		if route.HealthCheckEnabled() {
+			u, err := route.HealthCheckURL()
+			if err != nil {
+				return fmt.Errorf("proxy: failed to get health check URL for route %s: %w", route.Path, err)
+			}
+			go periodicHealthCheck(u, route.Timeout, 1*time.Second)
+		}
 		mux.Handle(route.Path, proxy)
 		slog.Debug("proxy: set a reverse proxy", slog.String("path", route.Path), slog.String("backend", route.Backend))
 	}
