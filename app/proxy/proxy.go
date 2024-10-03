@@ -1,7 +1,8 @@
-// Package proxy
+// Package proxy provides a way to set the proxy server settings.
 package proxy
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -10,11 +11,12 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/nao1215/hurrah/app/middleware"
 	"github.com/nao1215/hurrah/config"
 )
 
 // SetProxy sets the proxy server settings.
-func SetProxy(mux *http.ServeMux, routes []config.Route) error {
+func SetProxy(mux *http.ServeMux, routes []config.Route, middlewares ...middleware.Middleware) error {
 	for _, route := range routes {
 		proxy, err := newReverseProxy(route.Backend, route.Timeout)
 		if err != nil {
@@ -25,9 +27,12 @@ func SetProxy(mux *http.ServeMux, routes []config.Route) error {
 			if err != nil {
 				return fmt.Errorf("proxy: failed to get health check URL for route %s: %w", route.Path, err)
 			}
-			go periodicHealthCheck(u, route.Timeout, 1*time.Second)
+			ctx := context.Background()
+			go periodicHealthCheck(ctx, u, route.Timeout, 1*time.Second)
 		}
-		mux.Handle(route.Path, proxy)
+
+		handlerWithMiddleware := middleware.Chain(middleware.ToHandlerWithCtx(proxy), middlewares...)
+		mux.Handle(route.Path, handlerWithMiddleware.AdaptHandler())
 		slog.Debug("proxy: set a reverse proxy", slog.String("path", route.Path), slog.String("backend", route.Backend))
 	}
 	return nil
