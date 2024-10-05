@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,7 +22,9 @@ func Test_periodicHealthCheck(t *testing.T) {
 		}))
 		defer server.Close()
 
-		go periodicHealthCheck(server.URL, 2, 100*time.Millisecond)
+		ctx, cancel := context.WithCancel(context.Background())
+		go periodicHealthCheck(ctx, server.URL, 2, 100*time.Millisecond)
+		defer cancel()
 
 		select {
 		case <-done:

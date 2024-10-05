@@ -16,10 +16,11 @@ const (
 
 // Route is a struct that represents a route.
 type Route struct {
-	Path            string `toml:"path"`              // Path is the path of the route. e.g., /api/v1/users
-	Backend         string `toml:"backend"`           // Backend is the backend URL of the route. e.g., http://localhost:8080
-	Timeout         int64  `toml:"timeout"`           // Timeout is the timeout of the route. e.g., 10
-	HealthCheckPath string `toml:"health_check_path"` // HealthCheckPath is the path of the health check. e.g., /health
+	Path            string   `toml:"path"`              // Path is the path of the route. e.g., /api/v1/users
+	Backend         string   `toml:"backend"`           // Backend is the backend URL of the route. e.g., http://localhost:8080
+	Timeout         int64    `toml:"timeout"`           // Timeout is the timeout of the route. e.g., 10
+	HealthCheckPath string   `toml:"health_check_path"` // HealthCheckPath is the path of the health check. e.g., /health
+	Middleware      []string `toml:"middleware"`        // Middleware is the middleware of the route. e.g., [basic_auth, rate_limit]
 }
 
 // HealthCheckEnabled returns true if the health check is enabled.
