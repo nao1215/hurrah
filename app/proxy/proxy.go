@@ -27,7 +27,7 @@ func SetProxy(mux *http.ServeMux, routes []config.Route, middlewares ...middlewa
 			if err != nil {
 				return fmt.Errorf("proxy: failed to get health check URL for route %s: %w", route.Path, err)
 			}
-			ctx := context.Background()
+			ctx := context.Background() // TODO: use a context with cancellation.
 			go periodicHealthCheck(ctx, u, route.Timeout, 1*time.Second)
 		}
 
